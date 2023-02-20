@@ -24,6 +24,6 @@ git commit -m 'deploy'
 # git push -f git@github.com:<ssozr>/<ssozr>.github.io.git main
 
 # if you are deploying to https://<ssozr>.github.io/<vueweek7>
-git push -f git@github.com:<ssozr>/<vueweek7>.git main:gh-pages
+git push -f https://github.com/ssozr/vueWeek7.git main:gh-pages
 
 cd -
