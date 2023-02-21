@@ -39,7 +39,7 @@
               </td>
               <td>
                 <div class="btn-group">
-                  <button @click="openDeleteModal()" type="button" class="btn btn-outline-primary btn-sm">
+                  <button @click="editProductModal(product, product.id)" type="button" class="btn btn-outline-primary btn-sm">
                     編輯
                   </button>
                   <button @click="openDeleteModal(product.id)" type="button" class="btn btn-outline-danger btn-sm">
@@ -72,17 +72,20 @@
                       <input type="text" class="form-control"
                              placeholder="請輸入圖片連結" v-model="modal.imageUrl">
                     </div>
-                    <img class="img-fluid" src="" alt="">
+                    <img class="img-fluid" :src="modal.imageUrl" alt="">
                   </div>
-                  <div v-if="showImageUrl">
+                  <div>
                     <button class="btn btn-outline-primary btn-sm d-block w-100" @click="addImageUrl()">
                       新增圖片
                     </button>
                   </div>
-                  <div v-else>
-                    <button class="btn btn-outline-danger btn-sm d-block w-100">
-                      刪除圖片
-                    </button>
+                  <div v-if="showImageUrl">
+                    <div v-for="(url, i) in modal.imagesUrl" :key="i">
+                      <img class="img-fluid" :src="url" alt="">
+                      <button @click="removeImageUrl(i)" class="btn btn-outline-danger btn-sm d-block w-100">
+                        刪除圖片
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-8">
@@ -143,7 +146,7 @@
               <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                 取消
               </button>
-              <button type="button" class="btn btn-primary">
+              <button @click="addPorduct()" type="button" class="btn btn-primary">
                 確認
               </button>
             </div>
@@ -189,8 +192,10 @@ export default {
       products: [],
       delModal: '',
       delId: '',
+      editId: '',
+      changeModal: true,
       productModal: '',
-      showImageUrl: 1,
+      showImageUrl: 0,
       modal: {
         title: '',
         category: '',
@@ -223,12 +228,31 @@ export default {
       this.delId = id
     },
     openProductModal () {
+      this.changeModal = true
+      this.showImageUrl = 0
+      this.modal = {
+        imagesUrl: []
+      }
       this.productModal.show()
-      this.modal = {}
+    },
+    editProductModal (product, id) {
+      this.changeModal = false
+      this.modal = { ...product }
+      this.editId = id
+      this.productModal.show()
     },
     addImageUrl () {
-      console.log(this.modal.imageUrl)
-      this.modal.imagesUrl.push('123')
+      if (this.showImageUrl > 3) {
+        alert('新增圖片最多4張')
+        return
+      }
+      this.modal.imagesUrl.push(this.modal.imageUrl)
+      this.showImageUrl++
+      this.modal.imageUrl = ''
+    },
+    removeImageUrl (i) {
+      this.modal.imagesUrl.splice(i, 1)
+      this.showImageUrl--
     },
     deleteProduct () {
       const id = this.delId
@@ -244,6 +268,33 @@ export default {
           this.delId = ''
           this.delModal.hide()
         })
+    },
+    addPorduct () {
+      if (this.changeModal === true) {
+        const data = { ...this.modal }
+        this.$http.post(`${VITE_APP_URL}/v2/api/${VITE_APP_PATH}/admin/product`, { data })
+          .then((res) => {
+            console.log(res)
+            alert('產品新增成功')
+            this.getProducts()
+            this.productModal.hide()
+          })
+          .catch((err) => {
+            alert(err.data.message)
+          })
+      } else {
+        const id = this.editId
+        const data = { ...this.modal }
+        this.$http.put(`${VITE_APP_URL}/v2/api/${VITE_APP_PATH}/admin/product/${id}`, { data })
+          .then((res) => {
+            alert('產品更新成功')
+            this.getProducts()
+            this.productModal.hide()
+          })
+          .catch((err) => {
+            alert(err.data.message)
+          })
+      }
     }
   },
   mounted () {
