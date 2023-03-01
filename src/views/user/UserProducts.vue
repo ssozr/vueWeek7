@@ -50,6 +50,10 @@
             </tr>
           </tbody>
         </table>
+        <pagination
+        :pages="pagination"
+        @change-page="changePage"
+        ></pagination>
     </div>
       <!-- Modal -->
       <div id="productModal" ref="productModal" class="modal fade" tabindex="-1" aria-labelledby="productModalLabel"
@@ -183,6 +187,7 @@
 </template>
 
 <script>
+import pagination from '../../components/PaginationView.vue'
 import { Modal } from 'bootstrap'
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env
 
@@ -196,6 +201,8 @@ export default {
       changeModal: true,
       productModal: '',
       showImageUrl: 0,
+      pagination: {},
+      page: '',
       modal: {
         title: '',
         category: '',
@@ -211,13 +218,15 @@ export default {
     }
   },
   components: {
+    pagination
   },
   methods: {
-    getProducts () {
-      this.$http.get(`${VITE_APP_URL}/v2/api/${VITE_APP_PATH}/admin/products/all`)
+    getProducts (page = 1) {
+      this.$http.get(`${VITE_APP_URL}/v2/api/${VITE_APP_PATH}/admin/products/?page=${page}`)
         .then((res) => {
           console.log(res)
           this.products = res.data.products
+          this.pagination = res.data.pagination
         })
         .catch((err) => {
           console.log(err)
@@ -295,6 +304,9 @@ export default {
             alert(err.data.message)
           })
       }
+    },
+    changePage (page) {
+      this.getProducts(page)
     }
   },
   mounted () {
