@@ -54,6 +54,7 @@
         :pages="pagination"
         @change-page="changePage"
         ></pagination>
+        <Loading v-model:active="isLoading"/>
     </div>
       <!-- Modal -->
       <div id="productModal" ref="productModal" class="modal fade" tabindex="-1" aria-labelledby="productModalLabel"
@@ -187,6 +188,9 @@
 </template>
 
 <script>
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/css/index.css'
+import Swal from 'sweetalert2'
 import pagination from '../../components/PaginationView.vue'
 import { Modal } from 'bootstrap'
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env
@@ -194,6 +198,7 @@ const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env
 export default {
   data () {
     return {
+      isLoading: false,
       products: [],
       delModal: '',
       delId: '',
@@ -218,13 +223,14 @@ export default {
     }
   },
   components: {
-    pagination
+    pagination,
+    Loading
   },
   methods: {
     getProducts (page = 1) {
       this.$http.get(`${VITE_APP_URL}/v2/api/${VITE_APP_PATH}/admin/products/?page=${page}`)
         .then((res) => {
-          console.log(res)
+          this.isLoading = false
           this.products = res.data.products
           this.pagination = res.data.pagination
         })
@@ -264,10 +270,11 @@ export default {
       this.showImageUrl--
     },
     deleteProduct () {
+      this.isLoading = true
       const id = this.delId
       this.$http.delete(`${VITE_APP_URL}/v2/api/${VITE_APP_PATH}/admin/product/${id}`)
         .then((res) => {
-          console.log(res)
+          Swal.fire(`${res.data.message}`)
           this.delId = ''
           this.delModal.hide()
           this.getProducts()
@@ -279,12 +286,12 @@ export default {
         })
     },
     addPorduct () {
+      this.isLoading = true
       if (this.changeModal === true) {
         const data = { ...this.modal }
         this.$http.post(`${VITE_APP_URL}/v2/api/${VITE_APP_PATH}/admin/product`, { data })
           .then((res) => {
-            console.log(res)
-            alert('產品新增成功')
+            Swal.fire(`${res.data.message}`)
             this.getProducts()
             this.productModal.hide()
           })
@@ -296,7 +303,7 @@ export default {
         const data = { ...this.modal }
         this.$http.put(`${VITE_APP_URL}/v2/api/${VITE_APP_PATH}/admin/product/${id}`, { data })
           .then((res) => {
-            alert('產品更新成功')
+            Swal.fire(`${res.data.message}`)
             this.getProducts()
             this.productModal.hide()
           })
@@ -310,8 +317,8 @@ export default {
     }
   },
   mounted () {
+    this.isLoading = true
     this.getProducts()
-    console.log(this.$refs.delProductModal)
     this.delModal = new Modal(this.$refs.delProductModal)
     this.productModal = new Modal(this.$refs.productModal)
   }

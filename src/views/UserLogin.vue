@@ -1,7 +1,6 @@
 <template>
     <div id="app">
       <div class="container">
-        {{ user }}
         <div class="row justify-content-center">
           <h1 class="h3 mb-3 font-weight-normal">
             請先登入

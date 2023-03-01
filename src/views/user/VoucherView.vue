@@ -30,6 +30,7 @@
     :pages="pagination"
     @change-page="changePage"
   ></pagination>
+  <loading v-model:active="isLoading"/>
 
   <!-- 新增優惠券modal -->
   <div class="modal" tabindex="-1" ref="couponModal" id="couponModal">
@@ -42,7 +43,6 @@
       </div>
       <div class="modal-body">
         <div class="mb-3">
-            {{ couponData }}
             <label for="title" class="form-label">優惠券名稱</label>
             <input type="text" class="form-control" id="title" v-model="couponData.title">
         </div>
@@ -94,6 +94,9 @@
 </template>
 
 <script>
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/css/index.css'
+import Swal from 'sweetalert2'
 import pagination from '../../components/PaginationView.vue'
 import { Modal } from 'bootstrap'
 const { VITE_APP_PATH, VITE_APP_URL } = import.meta.env
@@ -101,6 +104,7 @@ const { VITE_APP_PATH, VITE_APP_URL } = import.meta.env
 export default {
   data () {
     return {
+      isLoading: false,
       modal: true,
       coupons: '',
       couponModal: '',
@@ -122,9 +126,9 @@ export default {
     getCoupons (page = 1) {
       this.$http.get(`${VITE_APP_URL}/v2/api/${VITE_APP_PATH}/admin/coupons?page=${page}`)
         .then((res) => {
-          console.log(res)
           this.coupons = res.data
           this.pagination = res.data.pagination
+          this.isLoading = false
         })
         .catch((err) => {
           console.log(err)
@@ -145,14 +149,14 @@ export default {
       this.couponModal.show()
     },
     newCoupon () {
+      this.isLoading = true
       if (this.modal === false) {
         this.timeChange()
         const data = { ...this.couponData }
         this.$http.put(`${VITE_APP_URL}/v2/api/${VITE_APP_PATH}/admin/coupon/${this.editId}`, { data })
           .then((res) => {
-            console.log(res)
             this.getCoupons()
-            alert('更新完成')
+            Swal.fire(`${res.data.message}`)
             this.couponModal.hide()
           })
           .catch((err) => {
@@ -163,7 +167,7 @@ export default {
         const data = { ...this.couponData }
         this.$http.post(`${VITE_APP_URL}/v2/api/${VITE_APP_PATH}/admin/coupon`, { data })
           .then((res) => {
-            alert(res.data.message)
+            Swal.fire(`${res.data.message}`)
             this.getCoupons()
             this.couponModal.hide()
           })
@@ -187,13 +191,12 @@ export default {
       this.couponData = { ...item }
       this.delCouponModal.show()
       this.delId = item.id
-      console.log(this.delId)
     },
     delCoupon () {
+      this.loading = true
       this.$http.delete(`${VITE_APP_URL}/v2/api/${VITE_APP_PATH}/admin/coupon/${this.delId}`)
         .then((res) => {
-          console.log(res)
-          alert('已刪除優惠券')
+          Swal.fire(`${res.data.message}`)
           this.getCoupons()
           this.delCouponModal.hide()
         })
@@ -206,9 +209,11 @@ export default {
     }
   },
   components: {
-    pagination
+    pagination,
+    Loading
   },
   mounted () {
+    this.isLoading = true
     this.getCoupons()
     this.couponModal = new Modal(this.$refs.couponModal)
     this.delCouponModal = new Modal(this.$refs.delCouponModal)

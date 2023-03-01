@@ -44,6 +44,7 @@
   :pages="pagination"
   @change-page="changePage"
   ></pagination>
+  <loading v-model:active="isLoading"/>
 
 <!--刪除 modal -->
 <div class="modal" tabindex="-1" id="delModal" ref="delModal">
@@ -91,12 +92,16 @@
 </template>
 
 <script>
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/css/index.css'
+import Swal from 'sweetalert2'
 import { Modal } from 'bootstrap'
 import pagination from '../../components/PaginationView.vue'
 const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env
 export default {
   data () {
     return {
+      isLoading: false,
       orders: [],
       delModal: '',
       delModalId: '',
@@ -108,15 +113,16 @@ export default {
     }
   },
   components: {
-    pagination
+    pagination,
+    Loading
   },
   methods: {
     getOrders (page = 1) {
       this.$http.get(`${VITE_APP_URL}/v2/api/${VITE_APP_PATH}/admin/orders/?page=${page}`)
         .then((res) => {
+          this.isLoading = false
           this.orders = res.data.orders
           this.pagination = res.data.pagination
-          console.log(this.pagination)
         })
         .catch((err) => {
           console.log(err)
@@ -130,19 +136,17 @@ export default {
       const id = this.delModalId
       this.$http.delete(`${VITE_APP_URL}/v2/api/${VITE_APP_PATH}/admin/order/${id}`)
         .then((res) => {
-          alert('刪除成功')
+          Swal.fire(`${res.data.message}`)
           this.getOrders()
           this.delModal.hide()
         })
         .catch((err) => {
           console.log(err)
-          alert('刪除失敗')
         })
     },
     opOrderModal (item) {
       this.orderModal.show()
       this.orderData = { ...item }
-      console.log(this.orderData)
     },
     upDataPaid (item) {
       const paid = {
@@ -150,8 +154,7 @@ export default {
       }
       this.$http.put(`${VITE_APP_URL}/v2/api/${VITE_APP_PATH}/admin/order/${item.id}`, { data: paid })
         .then((res) => {
-          console.log(res)
-          alert('更新完成')
+          Swal.fire(`${res.data.message}`)
           this.getOrders()
         })
         .catch((err) => {
@@ -168,6 +171,7 @@ export default {
     }
   },
   mounted () {
+    this.isLoading = true
     this.getOrders()
     this.delModal = new Modal(this.$refs.delModal)
     this.orderModal = new Modal(this.$refs.orderModal)
