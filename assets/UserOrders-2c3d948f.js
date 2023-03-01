@@ -1,1 +1,0 @@
-import{_ as e,o as s,c as o}from"./index-2ea165c2.js";const r={components:{}},t={class:"userorders"};function c(n,a,_,p,d,f){return s(),o("div",t," 這是訂單頁面 ")}const l=e(r,[["render",c]]);export{l as default};
