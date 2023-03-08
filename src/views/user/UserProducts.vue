@@ -63,7 +63,6 @@
           <div class="modal-content border-0">
             <div class="modal-header bg-dark text-white">
               <h5 id="productModalLabel" class="modal-title">
-                {{ modal }}
                 <span>新增產品</span>
               </h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -80,6 +79,7 @@
                     <img class="img-fluid" :src="modal.imageUrl" alt="">
                   </div>
                   <div>
+                    <input type="text" v-model="images">
                     <button class="btn btn-outline-primary btn-sm d-block w-100" @click="addImageUrl()">
                       新增圖片
                     </button>
@@ -198,6 +198,7 @@ const { VITE_APP_URL, VITE_APP_PATH } = import.meta.env
 export default {
   data () {
     return {
+      images: '',
       isLoading: false,
       products: [],
       delModal: '',
@@ -253,6 +254,10 @@ export default {
     editProductModal (product, id) {
       this.changeModal = false
       this.modal = { ...product }
+      const ary = this.modal.imagesUrl
+      if (Boolean(ary) === false) {
+        this.modal.imagesUrl = []
+      }
       this.editId = id
       this.productModal.show()
     },
@@ -261,9 +266,9 @@ export default {
         alert('新增圖片最多4張')
         return
       }
-      this.modal.imagesUrl.push(this.modal.imageUrl)
+      this.modal.imagesUrl.push(this.images)
       this.showImageUrl++
-      this.modal.imageUrl = ''
+      this.images = ''
     },
     removeImageUrl (i) {
       this.modal.imagesUrl.splice(i, 1)
