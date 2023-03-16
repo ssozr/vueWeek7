@@ -48,6 +48,10 @@ const routes = [
       {
         path: '/voucher',
         component: () => import('../views/user/VoucherView.vue')
+      },
+      {
+        path: '/article',
+        component: () => import('../views/user/ArticleView.vue')
       }
     ]
   }

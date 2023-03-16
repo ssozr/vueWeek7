@@ -106,14 +106,14 @@
                              placeholder="請輸入分類">
                     </div>
                     <div class="mb-3 col-md-6">
-                      <label for="price" class="form-label">單位</label>
+                      <label for="price" class="form-label">導師姓名</label>
                       <input v-model="modal.unit" id="unit" type="text" class="form-control" placeholder="請輸入單位">
                     </div>
                   </div>
 
                   <div class="row">
                     <div class="mb-3 col-md-6">
-                      <label for="origin_price" class="form-label">原價</label>
+                      <label for="origin_price" class="form-label">課程堂數</label>
                       <input v-model="modal.origin_price" id="origin_price" type="number" min="0" class="form-control" placeholder="請輸入原價">
                     </div>
                     <div class="mb-3 col-md-6">

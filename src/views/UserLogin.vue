@@ -17,7 +17,7 @@
                   placeholder="Password" required>
                 <label for="password">Password</label>
               </div>
-              <button @click="login()" class="btn btn-lg btn-primary w-100 mt-3" type="submit" id="loginBtn">
+              <button @click.prevent="login()" class="btn btn-lg btn-primary w-100 mt-3" type="submit" id="loginBtn">
                 登入
               </button>
             </form>

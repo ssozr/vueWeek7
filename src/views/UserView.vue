@@ -4,6 +4,7 @@
   <router-link to="/userorders">訂單管理</router-link> |
   <router-link to="/userprodeuts">產品管理</router-link> |
   <router-link to="/voucher">優惠券管理</router-link> |
+  <router-link to="/article">文章列表</router-link> |
   <hr>
   <RouterView></RouterView>
 </template>
